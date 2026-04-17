@@ -1,9 +1,29 @@
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Breadcrumb, Col, Flex, Input, Row } from "antd";
 import { Link, useNavigate } from "react-router-dom";
+import axiosClient from "../services/interceptor";
 
 function AllProduct() {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axiosClient.get("/Category/GetListCategory", {
+        params: { lang: "en" },
+      });
+      if (res && Array.isArray(res)) {
+        setCategories(res);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const onSearch = async (e) => {
     if (e) {
@@ -227,7 +247,105 @@ function AllProduct() {
         </div>
       </section>
 
-      <section className="fumed-ref section">
+      {categories && categories.length > 0 ? (
+        categories.map((category, index) => {
+          const isEven = index % 2 === 0;
+          if (isEven) {
+            return (
+              <section className="fumed-ref section" key={category.id}>
+                <div className="section-content relative">
+                  <div className="_1nvi">
+                    <Row gutter={30}>
+                      <Col span={24} className="_5xem">
+                        <p className="_5bmu uppercase">Our products</p>
+                        <h3 className="_7kra">{category.categoryName}</h3>
+                      </Col>
+                    </Row>
+                  </div>
+                  <div className="_5tcj">
+                    {category.children?.map((child) => (
+                      <div className="_6npx" key={child.id}>
+                        <div className="_2jjl">
+                          <div className="_8ghs">
+                            <Link to={child.link || "#"} className="block">
+                              <img
+                                src={child.thumb}
+                                className="_9rtu"
+                                alt={child.categoryName}
+                              />
+                            </Link>
+                          </div>
+                          <div className="_0cac">
+                            <div className="_9not">
+                              <div className="_2pzh">
+                                <Link to={child.link || "#"}>{child.categoryName}</Link>
+                              </div>
+                              <div className="_8ynm textLine-5">
+                                {child.shortDesc || child.description}
+                              </div>
+                            </div>
+                            <div className="_3qdw">
+                              <Link to={child.link || "#"} className="button button-outline-green">
+                                <span>View products</span>
+                                <FontAwesomeIcon icon="fa-solid fa-arrow-right" />
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            );
+          } else {
+            return (
+              <section className="zeros-vug section" key={category.id}>
+                <div className="section-content relative">
+                  <div className="_1nvi">
+                    <Row gutter={30}>
+                      <Col span={24} className="_5xem">
+                        <p className="_5bmu uppercase">Our products</p>
+                        <h3 className="_7kra">{category.categoryName}</h3>
+                      </Col>
+                    </Row>
+                  </div>
+                  <div className="_5msj">
+                    {category.children?.map((child) => (
+                      <div className="_4euo" key={child.id}>
+                        <div className="_8aey">
+                          <Link to={child.link || "#"} className="block">
+                            <img
+                              src={child.thumb}
+                              className="_1qlp"
+                              alt={child.categoryName}
+                            />
+                          </Link>
+                        </div>
+                        <div className="_3pxh">
+                          <div className="_0cvj">
+                            <Link to={child.link || "#"} className="textLine-2">
+                              {child.categoryName}
+                            </Link>
+                          </div>
+                          <div className="_8gbl textLine-2">
+                            {child.shortDesc || child.description}
+                          </div>
+                          <div className="_4jqn">
+                            <FontAwesomeIcon icon="fa-solid fa-arrow-right" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            );
+          }
+        })
+      ) : null}
+
+      {/* <section className="fumed-ref section">
         <div className="section-content relative">
           <div className="_1nvi">
             <Row gutter={30}>
@@ -793,7 +911,7 @@ function AllProduct() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="pitched-nap section">
         <div className="section-content relative">

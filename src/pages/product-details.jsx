@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Mousewheel, Pagination, Thumbs } from "swiper/modules";
 import defaultImage from "../assets/images/defaultImage.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axiosClient from "../services/interceptor";
 
 function ProductDetail() {
   const { url } = useParams();
@@ -14,6 +15,8 @@ function ProductDetail() {
   const swiperRef = useRef(null);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [direction, setDirection] = useState("vertical");
+  const [productDetail, setProductDetail] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   const updateDirection = () => {
     setDirection(window.innerWidth < 768 ? "horizontal" : "vertical");
@@ -27,10 +30,41 @@ function ProductDetail() {
     };
   }, []);
 
+  const fetchRelatedProducts = async (productId) => {
+    try {
+      const res = await axiosClient.get("/Product/GetRelatedProducts", {
+        params: { lang: "en", id: productId },
+      });
+      if (res && Array.isArray(res)) {
+        setRelatedProducts(res);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
 
-    /* VIẾT CODE CỦA BẠN VÀO ĐÂY */
+    const fetchProductDetail = async () => {
+      try {
+        const res = await axiosClient.get("/Product/GetProductByUrl", {
+          params: { lang: "en", url: url },
+        });
+        if (res) {
+          setProductDetail(res);
+          if (res.id) {
+            fetchRelatedProducts(res.id);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    
+    if (url) {
+      fetchProductDetail();
+    }
   }, [url]);
 
   const handleNext = () => {
@@ -72,7 +106,7 @@ function ProductDetail() {
                       title: "Packaging",
                     },
                     {
-                      title: <span className="active-bread">Food Wrap</span>,
+                      title: <span className="active-bread">{productDetail ? productDetail.prodName : "Food Wrap"}</span>,
                     },
                   ]}
                   id="breadcrumb"
@@ -87,6 +121,41 @@ function ProductDetail() {
           <div className="_1ghu">
             <div className="_6tdv">
               <div className="product-vertical-thumbnails">
+                {(productDetail && productDetail.media && productDetail.media.length > 0) ? (
+                  <Swiper
+                    modules={[Mousewheel, Pagination, Thumbs]}
+                    direction={direction}
+                    slidesPerView="auto"
+                    spaceBetween={20}
+                    mousewheel={true}
+                    pagination={{ clickable: true }}
+                    watchSlidesProgress={true}
+                    onSwiper={setThumbsSwiper}
+                    className="ThumbGallery GalleryArea"
+                  >
+                    {productDetail.media.map((imgUrl, idx) => (
+                      <SwiperSlide key={idx}>
+                        <Image src={imgUrl} alt="Product Thumb" fallback={defaultImage} preview={false} />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                ) : (productDetail && productDetail.thumb) ? (
+                  <Swiper
+                    modules={[Mousewheel, Pagination, Thumbs]}
+                    direction={direction}
+                    slidesPerView="auto"
+                    spaceBetween={20}
+                    mousewheel={true}
+                    pagination={{ clickable: true }}
+                    watchSlidesProgress={true}
+                    onSwiper={setThumbsSwiper}
+                    className="ThumbGallery GalleryArea"
+                  >
+                    <SwiperSlide>
+                      <Image src={productDetail.thumb} alt="Product Thumb" fallback={defaultImage} preview={false} />
+                    </SwiperSlide>
+                  </Swiper>
+                ) : (
                 <Swiper
                   modules={[Mousewheel, Pagination, Thumbs]}
                   direction={direction}
@@ -125,7 +194,23 @@ function ProductDetail() {
                     />
                   </SwiperSlide>
                 </Swiper>
+                )}
                 <Image.PreviewGroup>
+                  {(productDetail && productDetail.media && productDetail.media.length > 0) ? (
+                    <Swiper modules={[Thumbs]} thumbs={{ swiper: thumbsSwiper }} className="ProductGallery GalleryArea">
+                      {productDetail.media.map((imgUrl, idx) => (
+                        <SwiperSlide key={idx}>
+                          <Image src={imgUrl} alt="" fallback={defaultImage} preview={false} />
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                  ) : (productDetail && productDetail.thumb) ? (
+                    <Swiper modules={[Thumbs]} thumbs={{ swiper: thumbsSwiper }} className="ProductGallery GalleryArea">
+                      <SwiperSlide>
+                        <Image src={productDetail.thumb} alt="Product Thumb" fallback={defaultImage} preview={false} />
+                      </SwiperSlide>
+                    </Swiper>
+                  ) : (
                   <Swiper
                     modules={[Thumbs]}
                     thumbs={{ swiper: thumbsSwiper }}
@@ -156,6 +241,7 @@ function ProductDetail() {
                       />
                     </SwiperSlide>
                   </Swiper>
+                  )}
                 </Image.PreviewGroup>
               </div>
 
@@ -164,6 +250,8 @@ function ProductDetail() {
                   style={{ textTransform: "none" }}
                   type="link"
                   className="_7lpb"
+                  href={productDetail?.dataSheet || "#"}
+                  target={productDetail?.dataSheet ? "_blank" : undefined}
                 >
                   <span>Download data sheet</span>
                   <i className="fa-regular fa-arrow-right"></i>
@@ -173,16 +261,13 @@ function ProductDetail() {
             <div className="_5enz">
               <div className="product-info">
                 <h1 className="product-title product_title entry-title">
-                  Food Wrap
+                  {productDetail ? productDetail.prodName : "Food Wrap"}
                 </h1>
                 <div className="sku">
                   <strong>SKU: </strong>
-                  <span>036897488221-2</span>
+                  <span>{productDetail ? productDetail.sku : "036897488221-2"}</span>
                 </div>
-                <div className="description">
-                  100% compostable: made from PBAT compostable material, AnEco
-                  food wrap is capable of completely decomposing within 6-12
-                  months into humus, water, Co2.
+                <div className="description" dangerouslySetInnerHTML={{ __html: productDetail ? productDetail.shortDesc : "100% compostable: made from PBAT compostable material, AnEco food wrap is capable of completely decomposing within 6-12 months into humus, water, Co2." }}>
                 </div>
                 <div className="_6zrw">
                   <Link to="/contact-us" className="button button-gradient">
@@ -193,30 +278,69 @@ function ProductDetail() {
                   </a>
                 </div>
                 <div className="contents widget-content">
-                  <h4 className="_9cfu">Performance Features:</h4>
-                  <div className="inner-content">
-                    <ul>
-                      <li>
-                        With outstanding features to other products on the
-                        market, AnEco compostable cling wrap is transparent,
-                        flexible with a sharp cutting bar, easy for consumers in
-                        food preservation.
-                      </li>
-                      <li>
-                        Convenient thumb opening allows for a safe, easy grasp
-                        on the film
-                      </li>
-                      <li>FDA Compliant</li>
-                      <li>CFIA Compliant</li>
-                      <li>Kosher Compliant</li>
-                    </ul>
-                  </div>
+                  {productDetail ? (
+                    <div dangerouslySetInnerHTML={{ __html: productDetail.description }}></div>
+                  ) : (
+                  <>
+                    <h4 className="_9cfu">Performance Features:</h4>
+                    <div className="inner-content">
+                      <ul>
+                        <li>
+                          With outstanding features to other products on the
+                          market, AnEco compostable cling wrap is transparent,
+                          flexible with a sharp cutting bar, easy for consumers in
+                          food preservation.
+                        </li>
+                        <li>
+                          Convenient thumb opening allows for a safe, easy grasp
+                          on the film
+                        </li>
+                        <li>FDA Compliant</li>
+                        <li>CFIA Compliant</li>
+                        <li>Kosher Compliant</li>
+                      </ul>
+                    </div>
+                  </>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {productDetail && productDetail.specification && (
+        <section className="spinally-zee section">
+          <div className="section-content relative">
+            <div className="_7zow row">
+              <div className="_4cnm col large-12 medium-12 small-12 RemovePaddingBottom">
+                <div className="col-inner">
+                  <div className="_4zte">
+                    <h2 className="_9orw">Specifications</h2>
+                    {productDetail.dataSheet && (
+                      <Button
+                        style={{ textTransform: "none" }}
+                        type="link"
+                        className="_2oxj"
+                        href={productDetail.dataSheet}
+                        target="_blank"
+                      >
+                        <span>Download data sheet</span>
+                        <i className="fa-regular fa-arrow-right"></i>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="_5nyy col large-12 medium-12 small-12 RemovePaddingBottom">
+                <div className="col-inner">
+                  <div className="wrapper-table" dangerouslySetInnerHTML={{ __html: productDetail.specification }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* <section className="spinally-zee section">
         <div className="section-content relative">
@@ -292,6 +416,31 @@ function ProductDetail() {
                     },
                   }}
                 >
+                  {relatedProducts && relatedProducts.length > 0 && relatedProducts.map((relProd) => (
+                    <SwiperSlide key={relProd.id}>
+                      <Link className="box_project block has-hover" to={`/product/${relProd.slug}`}>
+                        <div className="media_prj image-zoom">
+                          <Image
+                            src={relProd.thumb}
+                            alt={relProd.prodName}
+                            fallback={defaultImage}
+                            preview={false}
+                            className="_7omy"
+                          />
+                        </div>
+                        <div className="text_prj">
+                          <h4 className="textLine-2">{relProd.prodName}</h4>
+                          <div className="_7yax">
+                            <strong>SKU&nbsp;</strong>
+                            <span>{relProd.sku}</span>
+                          </div>
+                        </div>
+                      </Link>
+                    </SwiperSlide>
+                  ))}
+                  
+                  {(!relatedProducts || relatedProducts.length === 0) && (
+                    <>
                   <SwiperSlide>
                     <Link className="box_project block has-hover" to="">
                       <div className="media_prj image-zoom">
@@ -412,6 +561,8 @@ function ProductDetail() {
                       </div>
                     </Link>
                   </SwiperSlide>
+                    </>
+                  )}
                 </Swiper>
               </Col>
             </Row>

@@ -17,6 +17,7 @@ export const router = createBrowserRouter(
       <Route path="/" element={<Main />}>
         <Route path="all-product" element={<AllProduct />} />
         <Route path="category" element={<Category />} />
+        <Route path="category/:url" element={<Category />} />
         <Route path="search" element={<SearchScreen />} />
         <Route path="product/:url" element={<ProductDetail />} />
       </Route>

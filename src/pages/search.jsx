@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SearchOutlined } from "@ant-design/icons";
+import axiosClient from "../services/interceptor";
 
 function SearchScreen() {
   // Bỏ cmt nếu bạn sử dụng phần này
@@ -25,11 +26,55 @@ function SearchScreen() {
   const [filterData, setFilterData] = useState();
   const [isSubmitDisabled, setSubmitDisabled] = useState(true);
 
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [filtersContent, setFiltersContent] = useState([]);
+  const [pageNum, setPageNum] = useState(1);
+  const [isFilterMode, setIsFilterMode] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const fetchSearchData = async (page = 1) => {
+    try {
+      const res = await axiosClient.get("/Product/SearchProducts", {
+         params: { lang: "en", query: textSearch || "", page: page }
+      });
+      if (res) {
+         setProducts(res.products || res.items || []);
+         setCategories(res.categories || []);
+         setFiltersContent(res.filters || []);
+         setTotalCount(res.totalCount || (res.products && res.products.length) || 0);
+      }
+    } catch (error) {
+       console.error(error);
+    }
+  };
+
+  const submitFilter = async (values, page = 1) => {
+    try {
+      const payload = {
+        lang: "en",
+        textSearch: values.textSearch || textSearch || "",
+        categories: values.categories || [],
+        page: page
+      };
+      const res = await axiosClient.post("/Product/FilterSearchProduct", payload);
+      if (res) {
+         setProducts(res.products || res.items || res || []);
+         setTotalCount(res.totalCount || (res.products && res.products.length) || res.length || 0);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
-
-    /* VIẾT CODE CỦA BẠN VÀO ĐÂY */
-  }, []);
+    if (textSearch !== null) {
+      setIsFilterMode(false);
+      setPageNum(1);
+      fetchSearchData(1);
+    }
+  }, [textSearch]);
 
   const onValuesChange = (changedValues, allValues) => {
     const hasValue = Object.values(allValues).some((value) => value);
@@ -41,20 +86,20 @@ function SearchScreen() {
     if (!hasValue) {
       return;
     }
+    setFilterData(values);
+    setIsFilterMode(true);
+    setPageNum(1);
+    submitFilter(values, 1);
+  };
 
-    let filters;
-    Object.keys(values).forEach((key) => {
-      if (
-        values[key] &&
-        values[key].length > 0 &&
-        key !== "categories" &&
-        key !== "textSearch"
-      ) {
-        filters = { ...filters, [key]: values[key] };
-      }
-    });
-
-    /* VIẾT CODE CỦA BẠN VÀO ĐÂY */
+  const handlePageChange = (page) => {
+    setPageNum(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (isFilterMode && filterData) {
+      submitFilter(filterData, page);
+    } else {
+      fetchSearchData(page);
+    }
   };
 
   const clearFilters = () => {
@@ -169,10 +214,16 @@ function SearchScreen() {
                         name="categories"
                         className="widget_product_categories"
                       >
+                       {categories && categories.length > 0 ? (
+                         <Checkbox.Group className="form-group">
+                           {categories.map(c => <Checkbox value={c.id} key={c.id} style={{display: 'block', margin: '4px 0'}}>{c.categoryName}</Checkbox>)}
+                         </Checkbox.Group>
+                       ) : (
                         <Checkbox.Group className="form-group">
                           <Checkbox value={1}>Consumer Packaging</Checkbox>
                           <Checkbox value={2}>Industrial Packaging</Checkbox>
                         </Checkbox.Group>
+                       )}
                       </Form.Item>
 
                       <Form.Item
@@ -233,6 +284,40 @@ function SearchScreen() {
                     <h2 className="_3rac">Keyword: &quot;{textSearch}&quot;</h2>
                   </div>
                   <div className="products">
+                    {/* DYNAMIC PRODUCTS */}
+                    {products && products.length > 0 && products.map((prod) => (
+                      <div className="col has-hover product" key={prod.id}>
+                        <div className="col-inner">
+                          <div className="box-product has-hover">
+                            <div className="box-image customer-box-image-product">
+                              <Link to={`/product/${prod.slug}`} className="_1gqs block image-zoom">
+                                <img
+                                  src={prod.thumb}
+                                  className="_8wjh"
+                                  alt={prod.prodName}
+                                />
+                              </Link>
+                            </div>
+                            <div className="box-text box-text-products text-left">
+                              <div className="title-wrapper">
+                                <h4 className="product-title">
+                                  <Link to={`/product/${prod.slug}`} className="product_link">
+                                    {prod.prodName}
+                                  </Link>
+                                </h4>
+                                <p className="sku">
+                                  SKU: <span>{prod.sku}</span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {/* PRESERVE DUMMY */}
+                    {(!products || products.length === 0) && (
+                      <>
                     <div className="col has-hover product">
                       <div className="col-inner">
                         <div className="box-product has-hover">
@@ -467,11 +552,14 @@ function SearchScreen() {
                         </div>
                       </div>
                     </div>
+                      </>
+                    )}
                   </div>
 
                   <Pagination
-                    defaultCurrent={1}
-                    total={27}
+                    current={pageNum}
+                    onChange={handlePageChange}
+                    total={totalCount || 27}
                     defaultPageSize={9}
                     className="pagination-cntt"
                   />

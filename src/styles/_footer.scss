@@ -1,0 +1,230 @@
+.footer-wrapper {
+  .TopFooter {
+    padding-top: 50px;
+    background: linear-gradient(90deg, #084CA1 0%, #0068AD 100%);
+
+    .logo_footer {
+      width: 210px;
+      display: block;
+    }
+
+    ._3cxz {
+      max-width: 1320px;
+      margin: 0 auto;
+      border-bottom: 1px solid #58B947;
+
+      ._3qzh,
+      ._0vab {
+        padding: 0 15px 30px;
+      }
+
+      ._5iwi {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+
+        ._0mal {
+          margin-right: 40px;
+          display: flex;
+          align-items: center;
+
+          ._1dsp {
+            margin-right: 12px;
+            width: 36px;
+            color: #fff;
+          }
+
+          ._8ywm {
+            flex: 1;
+
+            ._1sve {
+              color: #FFF;
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            }
+
+            ._3gcg {
+              color: #FFF;
+              font-size: 18px;
+              font-style: normal;
+              font-weight: 700;
+              line-height: normal;
+              text-decoration: none;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .BottomFooter {
+    padding-bottom: 50px;
+    background: linear-gradient(90deg, #084CA1 0%, #0068AD 100%);
+
+    .list-menu-footer {
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+
+      .item {
+        margin-left: 0;
+        margin-bottom: 0;
+
+        a {
+          color: #FFF;
+          font-size: 16px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: normal;
+
+          &:hover {
+            color: #f1f1f1;
+          }
+        }
+      }
+    }
+
+    .list-social {
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      color: #fff;
+
+      .item {
+        margin-right: 32px;
+        margin-left: 0;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .CopyRight {
+    background-color: #FFF;
+
+    ._0xhk {
+      text-align: center;
+      padding: 8px 15px;
+      color: #686868;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+    }
+  }
+
+  ._3idv {
+    max-width: 1320px;
+    margin: 0 auto;
+
+    ._4xqy {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  }
+
+  .sticky-social {
+    display: inline-grid;
+    position: fixed;
+    bottom: 100px;
+    right: 10px;
+    min-width: 60px;
+    text-align: center;
+    z-index: 999;
+
+    .list-sticky {
+      margin-bottom: 0;
+
+      .item {
+        list-style: none;
+        width: 65px;
+        height: 65px;
+        margin-bottom: 15px;
+        overflow: hidden;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        a {
+          display: block;
+          width: 100%;
+        }
+
+        img {
+          width: auto;
+          height: auto;
+        }
+      }
+    }
+  }
+
+
+  .back-to-top {
+    position: fixed;
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    right: 20px;
+    bottom: 20px;
+    transition: color .3s, opacity .3s, transform .3s;
+
+    img {
+      display: block;
+      width: 100%;
+    }
+
+    &:hover {
+      box-shadow: unset;
+    }
+
+    &.active {
+      opacity: 1;
+      pointer-events: inherit;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .footer-wrapper {
+    .TopFooter {
+      padding: 30px 0;
+
+      ._5iwi {
+        justify-content: flex-start;
+
+        ._0mal {
+          margin-right: 0;
+          margin-bottom: 30px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+
+    .BottomFooter {
+      padding-bottom: 30px;
+      top: -1px;
+      padding-top: 0;
+
+      .list-menu-footer {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .list-isocal {
+        justify-content: flex-start;
+        margin-top: 30px;
+      }
+    }
+  }
+}

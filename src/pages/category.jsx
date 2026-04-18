@@ -278,12 +278,12 @@ function Category() {
                     >
                       {categoryItem && categoryItem.children && categoryItem.children.length > 0 ? (
                         <Checkbox.Group className="form-group">
-                          {categoryItem.children.map(child => <Checkbox value={child.id} key={child.id} style={{display: 'block', margin: '4px 0'}}>{child.categoryName}</Checkbox>)}
+                          {categoryItem.children.map(child => <Checkbox value={child.id} key={child.id} style={{ marginLeft: 0 }}>{child.categoryName}</Checkbox>)}
                         </Checkbox.Group>
                       ) : (
                         <Checkbox.Group className="form-group">
-                          <Checkbox value={1}>Consumer Packaging</Checkbox>
-                          <Checkbox value={2}>Industrial Packaging</Checkbox>
+                          <Checkbox value={1} style={{ marginLeft: 0 }}>Consumer Packaging</Checkbox>
+                          <Checkbox value={2} style={{ marginLeft: 0 }}>Industrial Packaging</Checkbox>
                         </Checkbox.Group>
                       )}
                     </Form.Item>
@@ -293,13 +293,13 @@ function Category() {
                       className="widget_product_categories"
                     >
                       <Checkbox.Group className="form-group">
-                        <Checkbox value={3}>Food Storage</Checkbox>
-                        <Checkbox value={4}>Trash Bags</Checkbox>
-                        <Checkbox value={5}>
+                        <Checkbox value={3} style={{ marginLeft: 0 }}>Food Storage</Checkbox>
+                        <Checkbox value={4} style={{ marginLeft: 0 }}>Trash Bags</Checkbox>
+                        <Checkbox value={5} style={{ marginLeft: 0 }}>
                           Knife – Case – Storage Box
                         </Checkbox>
-                        <Checkbox value={6}>Containers</Checkbox>
-                        <Checkbox value={7}>Gloves</Checkbox>
+                        <Checkbox value={6} style={{ marginLeft: 0 }}>Containers</Checkbox>
+                        <Checkbox value={7} style={{ marginLeft: 0 }}>Gloves</Checkbox>
                       </Checkbox.Group>
                     </Form.Item>
 
@@ -322,8 +322,8 @@ function Category() {
                       className="widget_product_categories"
                     >
                       <Checkbox.Group className="form-group">
-                        <Checkbox value="Yes">Yes</Checkbox>
-                        <Checkbox value="No">No</Checkbox>
+                        <Checkbox value="Yes" style={{ marginLeft: 0 }}>Yes</Checkbox>
+                        <Checkbox value="No" style={{ marginLeft: 0 }}>No</Checkbox>
                       </Checkbox.Group>
                     </Form.Item>
 
